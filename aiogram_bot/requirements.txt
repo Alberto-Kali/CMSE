@@ -1,0 +1,4 @@
+aiogram 
+asyncpg 
+redis 
+neo4j

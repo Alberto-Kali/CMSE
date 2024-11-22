@@ -1,0 +1,118 @@
+version: '3.9'
+
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - cmse_network
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./frontend/src/*
+          target: /app/*
+    networks:
+      - cmse_network
+
+  backend:
+    build: ./backend
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_URL=${DB_URI}
+      - REDIS_HOST=redis
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./backend/src/*
+          target: /app/*
+    networks:
+      - cmse_network
+
+  aiogram_bot:
+    build: ./aiogram_bot
+    environment:
+      - BOT_TOKEN=${AIOGRAM_BOT_TOKEN}
+      - DB_URL=${DB_URI}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - NEO4j_USER=${NEO4J_USER}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - NEO4j_URL=${NEO4J_URI}
+      - REDIS_URL=${REDIS_URI}
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./aiogram_bot/src/bot.py
+          target: /app/bot.py
+    networks:
+      - cmse_network
+
+  postgres:
+    image: postgres:13
+    ports:
+    - "5432:5432"
+    environment:
+      - POSTGRES_DB=cmse
+      - POSTGRES_USER=mille
+      - POSTGRES_PASSWORD=hrefxCp_0
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cmse_network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=albertozaaz760@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=whois
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - cmse_network
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis_data:/data
+    networks:
+      - cmse_network
+
+  neo4j:
+    image: neo4j:latest
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
+      - NEO4J_PLUGINS=["apoc"]
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - cmse_network
+
+volumes:
+  pgadmin_data:
+  postgres_data:
+  redis_data:
+  neo4j_data:
+
+networks:
+  cmse_network:
+    driver: bridge
