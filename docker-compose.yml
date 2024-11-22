@@ -44,12 +44,8 @@ services:
     environment:
       - BOT_TOKEN=${AIOGRAM_BOT_TOKEN}
       - DB_URL=${DB_URI}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
       - NEO4j_USER=${NEO4J_USER}
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - NEO4j_PASSWORD=${NEO4J_PASSWORD}
       - NEO4j_URL=${NEO4J_URI}
       - REDIS_URL=${REDIS_URI}
     develop:

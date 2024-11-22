@@ -1,4 +1,5 @@
 aiogram 
-asyncpg 
+asyncpg
+psycopg2-binary
 redis 
 neo4j
