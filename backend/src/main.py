@@ -29,6 +29,54 @@ cursor = conn.cursor()
 
 app = FastAPI()
 
+
+cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(50) UNIQUE NOT NULL,
+            email VARCHAR(100) UNIQUE NOT NULL,
+            phone VARCHAR(20),
+            name VARCHAR(100),
+            description TEXT,
+            avatar TEXT,  -- URL или base64 изображения
+            birth DATE,
+            city VARCHAR(100),
+            sports VARCHAR(255)[],  -- Массив видов спорта
+            events INTEGER[],  -- Массив ID соревнований
+            password VARCHAR(255) NOT NULL,  -- Хешированный пароль
+            root BOOLEAN DEFAULT false,
+            admin BOOLEAN DEFAULT false,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            last_login TIMESTAMP WITH TIME ZONE
+        );
+
+        CREATE TABLE IF NOT EXISTS competitions (
+            id SERIAL PRIMARY KEY,
+            sport_name VARCHAR(255),
+            sport_composition VARCHAR(255),
+            ekp_number VARCHAR(255) UNIQUE,
+            date_start TIMESTAMP,
+            date_end TIMESTAMP,
+            city VARCHAR(255),
+            discipline VARCHAR(255),
+            competition_class VARCHAR(255),
+            country VARCHAR(255),
+            max_people_count INTEGER,
+            peoples INTEGER[],  -- Список ID людей
+            genders_and_ages VARCHAR[],  -- Массив для гендеров и возрастов
+            comments JSONB[]  -- Массив для комментариев в формате JSON
+        );
+
+        -- Индексы для улучшения производительности
+        CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+        CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+        CREATE INDEX IF NOT EXISTS idx_competitions_sport_name ON competitions(sport_name);
+        CREATE INDEX IF NOT EXISTS idx_competitions_ekp_number ON competitions(ekp_number);
+    """)
+conn.commit()
+
+
+
 # Create a ThreadPoolExecutor for background tasks
 executor = ThreadPoolExecutor(max_workers=2)
 
@@ -63,8 +111,10 @@ def parse_and_save_pdf(file_path: str):
 @app.post("/upload_pdf_db")
 async def upload_pdf_db(file: UploadFile = File(...)):
     # Ensure the uploaded file is a PDF
-    if not file.filename.endswith('.pdf'):
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed.")
+    if not file:
+        raise HTTPException(status_code=400, detail="No file uploaded.")
+    #if not file.filename.endswith('.pdf'):
+    #    raise HTTPException(status_code=400, detail="Only PDF files are allowed.")
     
     # Save the uploaded file temporarily
     temp_file_path = f"/tmp/{file.filename}"
