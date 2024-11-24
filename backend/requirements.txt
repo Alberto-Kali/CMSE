@@ -6,3 +6,7 @@ redis==4.2.2
 selenium
 openrouteservice
 pdfplumber
+faiss-cpu
+bcrypt
+scikit-learn
+python-multipart

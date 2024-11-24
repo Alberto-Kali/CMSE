@@ -1,0 +1,24 @@
+<!-- frontend/templates/comment_event.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comment on Event</title>
+</head>
+<body>
+    <h1>Comment on Event</h1>
+    <form method="POST">
+        <input type="number" name="event_id" placeholder="Event ID" required>
+        <input type="number" name="user_id" placeholder="User  ID" required>
+        <input type="number" name="rate" placeholder="Rate (0-5)" min="0" max="5" required>
+        <textarea name="text" placeholder="Your comment" required></textarea>
+        <input type="text" name="images" placeholder="Image URLs (comma separated)">
+        <button type="submit">Submit Comment</button>
+    </form>
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+    <a href="/">Back to Home</a>
+</body>
+</html>

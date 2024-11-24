@@ -148,36 +148,3 @@ class UserManager:
         self.cursor.close()
         self.conn.close()
 
-
-# Example usage
-if __name__ == "__main__":
-    POSTGRES_URL = os.getenv("DB_URL")
-    user_manager = UserManager(POSTGRES_URL)
-
-    # Register a new user
-    user_manager.register_user(
-        username="john_doe",
-        email="john@example.com",
-        phone="1234567890",
-        name="John Doe",
-        description="A passionate sportsman.",
-        avatar="path/to/avatar.png",
-        birth=date(1990, 1, 1),
-        city="New York",
-        sports=["Soccer", "Basketball"],  # Assuming this is stored as a string array in the database
-        events=[1, 2, 3],  # List of event IDs
-        password="securepassword123",  # Password to be hashed
-        root=False,
-        admin=False
-    )
-
-    # Edit user details
-    user_manager.edit_user(1, name="Johnathan Doe", city="Los Angeles", events=[1, 4, 5])  # Updating events
-
-    # Login a user user_manager.login_user("john_doe", "securepassword123")  # Attempting to log in with the correct password
-
-    # Delete a user
-    user_manager.delete_user(1)
-
-    # Close the database connection
-    user_manager.close()

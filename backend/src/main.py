@@ -1,14 +1,29 @@
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from typing import Dict
+"""
+Provides a FastAPI application for managing competitions, user registration and authentication, and travel information.
+
+The application includes the following main features:
+- Uploading PDF files and parsing the data to store in a PostgreSQL database
+- Searching for competitions based on keywords
+- Retrieving travel information (hotel prices and transport prices) between two cities
+- Registering and authenticating users
+- Editing and deleting user profiles
+- Registering users for events
+- Retrieving a list of unique sport names from the competitions
+- Submitting comments for events
+
+The application uses the FastAPI framework, PostgreSQL database, and various utility modules to implement the functionality.
+"""
+from fastapi import FastAPI, File, UploadFile, HTTPException, Query
+from typing import Dict, List, Optional
 import os
 import psycopg2
 from concurrent.futures import ThreadPoolExecutor
-from .modules import pdf_parser
-from .modules.users_controller import UserManager
-from .modules.rag_controller import CompetitionSearcher
-from .modules.router_conroller import TravelService
+from modules.pdf_parser import PDFParser
+from modules.users_controller import UserManager
+from modules.rag_controller import CompetitionSearcher
+from modules.router_conroller import TravelService
 
-POSTGRES_URL = os.getenv("DB_URL")
+POSTGRES_URL = os.getenv("DATABASE_URL")
 conn = psycopg2.connect(POSTGRES_URL)
 cursor = conn.cursor()
 
@@ -20,7 +35,8 @@ executor = ThreadPoolExecutor(max_workers=2)
 def parse_and_save_pdf(file_path: str):
     try:
         # Parse the PDF and extract data
-        parsed_data = pdf_parser.parse_db(file_path)
+        pdf_parser = PDFParser()
+        parsed_data = pdf_parser.parse(file_path)
         
         # Insert parsed data into the PostgreSQL database
         for entry in parsed_data:
